@@ -1,0 +1,70 @@
+---
+title: "Вступ до Quarto"
+author: "Мірошниченко Ігор"
+format: html
+editor_options: 
+  chunk_output_type: console
+---
+```{r}
+#| label: library
+#| include: false
+library(tidyverse)
+library(knitr)
+```
+
+
+# Розділ 1
+*Всім* **привіт!**
+
+~~Закреслений текст~~
+
+* Група 1
+
+* Група 2
+  * староста
+  
+1. Група 1
+
+2. Група 2
+
+- список 1
++ список 2
+
+[Офіційна сторінка КНЕУ](https://kneu.edu.ua/)
+
+![](https://images.weserv.nl/?url=https%3A%2F%2Fkneu.edu.ua%2Fuserfiles%2Fspa%2Fenactus.png)
+
+CTRL + ALT + I
+
+```{r}
+sqrt(1:10)
+```
+
+```{r}
+#| label: oneplusone
+#| echo: false
+
+1 + 1
+```
+
+
+```{r}
+mpg %>% 
+  kable()
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
