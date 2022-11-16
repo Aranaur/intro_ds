@@ -1,0 +1,126 @@
+---
+title: "05-ggplot2"
+format: html
+author: "Мірошниченко Ігор"
+date: "`r Sys.Date()`"
+editor_options: 
+  chunk_output_type: console
+---
+```{r}
+#| include: false
+
+library(tidyverse)
+```
+
+# Базова візуалізація
+
+```{r}
+mpg %>% 
+  head()
+```
+
+## Точкова діаграма
+```{r}
+plot(mpg$cty, mpg$hwy)
+```
+
+## Гістограма
+```{r}
+hist(mpg$cty)
+```
+
+## Box-plot
+```{r}
+# boxplot(mpg$cty ~ mpg$year)
+boxplot(cty ~ year, data = mpg)
+```
+
+# ggplot2
+```{r}
+library(ggplot2)
+```
+
+```{r}
+ggplot(data = mpg) +
+  geom_point(aes(x = cty, y = hwy))
+```
+
+```{r}
+ggplot(mpg, aes(cty, hwy)) +
+  geom_point() + 
+  geom_smooth(method = "lm", se = FALSE)
+```
+
+```{r}
+ggplot(data = mpg, aes(x = cty, y = hwy, color = as.factor(year))) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE)
+```
+
+```{r}
+ggplot(data = mpg, aes(x = cty, y = hwy, color = as.factor(year))) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  facet_wrap(~ cyl, scales = "free")
+```
+
+```{r}
+ggplot(data = mpg, aes(x = cty, y = hwy, color = as.factor(year))) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  facet_grid(cyl ~ ., scales = "free")
+```
+
+```{r}
+ggplot(mpg, aes(drv, fill = as.factor(cyl))) +
+  geom_bar()
+```
+
+```{r}
+ggplot(mpg) +
+  geom_bar(aes("", fill = as.factor(cyl)))
+```
+
+```{r}
+ggplot(mpg, aes(drv, fill = as.factor(cyl))) +
+  geom_bar(alpha = 0.2, position = "identity")
+```
+
+```{r}
+ggplot(mpg, aes(drv, fill = as.factor(cyl))) +
+  geom_bar(position = "fill")
+```
+
+```{r}
+ggplot(mpg) +
+  geom_bar(aes("", fill = as.factor(cyl))) +
+  coord_polar(theta = "y") +
+  theme_void() +
+  labs(title = "Розподіл автомобілів за к-тю циліндрів",
+       subtitle = "за даними датасету mpg",
+       caption = "Мірошниченко І.В.")
+```
+
+```{r}
+ggplot(mpg, aes(x = as.factor(cyl), y = cty)) +
+  geom_boxplot() +
+  coord_flip()
+```
+
+```{r}
+ggplot(mpg, aes(cty, fill = as.factor(cyl))) +
+  geom_histogram(bins = 10)
+```
+
+```{r}
+ggplot(mpg, aes(cty, fill = as.factor(cyl))) +
+  geom_density(alpha = 0.2)
+```
+
+```{r}
+ukr <- map_data("world", region = "Ukraine")
+
+ggplot(ukr, aes(long, lat, group = group)) +
+  geom_polygon(fill = "darkgreen", color = "black") +
+  coord_quickmap()
+```

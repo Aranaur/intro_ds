@@ -1,7 +1,8 @@
 ---
 title: "Вступ до Quarto"
 author: "Мірошниченко Ігор"
-format: html
+format: pdf
+date: "`r Sys.Date()`"
 editor_options: 
   chunk_output_type: console
 ---
@@ -35,35 +36,6 @@ library(knitr)
 ![](https://images.weserv.nl/?url=https%3A%2F%2Fkneu.edu.ua%2Fuserfiles%2Fspa%2Fenactus.png)
 
 CTRL + ALT + I
-
-```{r}
-sqrt(1:10)
-```
-
-```{r}
-#| label: oneplusone
-#| echo: false
-
-1 + 1
-```
-
-
-```{r}
-mpg %>% 
-  kable()
-```
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
