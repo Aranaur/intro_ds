@@ -1,0 +1,181 @@
+---
+title: "Аналіз тексту"
+format: html
+editor_options: 
+  chunk_output_type: console
+---
+
+# Підключення пакетів
+```{r}
+#| message: false
+#| warning: false
+library(tidyverse)
+library(tidytext)
+library(wordcloud)
+library(textdata)
+library(reshape2)
+
+# devtools::install_github("ropensci/gutenbergr")
+library(gutenbergr)
+```
+
+# Завантаження даних
+```{r}
+gutenberg_metadata %>% 
+  count(author, sort = TRUE)
+```
+
+[Dracula book](https://www.gutenberg.org/files/345/345-0.txt)
+
+```{r}
+dracula <- read_delim("https://www.gutenberg.org/files/345/345-0.txt", delim = "\n", col_names = "text")
+
+dracula
+```
+
+# Охайні дані
+Приводимо дані до зручного вигляду: видаляємо "стоп-слова" та записуємо кожне слово в окремий рядок.
+```{r}
+tidy_dracula <- dracula %>% 
+  unnest_tokens(word, text) %>% 
+  anti_join(stop_words)
+
+tidy_dracula
+```
+
+# Аналіз тексту
+Порахуємо кількість унікальних слів
+```{r}
+tidy_dracula %>% 
+  count(word, sort = TRUE)
+```
+
+## Візуалізація тексту
+Візуалізація кількості унікальний слів у творі "Дракула"
+```{r}
+tidy_dracula %>% 
+  count(word, sort = TRUE) %>% 
+  filter(n > 120) %>% 
+  mutate(word = reorder(word, n)) %>% 
+  ggplot(aes(word, n)) +
+  geom_col(fill = "darkgreen") +
+  coord_flip() + 
+  xlab(NULL)
+```
+
+## Семантичний аналіз тексту
+Словники семантичного забарвлення тексту
+```{r}
+afinn <- get_sentiments("afinn")
+afinn %>% 
+  filter(value == 4) %>% 
+  slice_sample(n = 10)
+
+bing <- get_sentiments("bing")
+bing %>% 
+  slice_sample(n = 10)
+  
+
+nrc <- get_sentiments("nrc")
+nrc %>% 
+  slice_sample(n = 10)
+
+loughran <- get_sentiments("loughran")
+loughran %>% 
+  slice_sample(n = 10)
+```
+
+```{r}
+tidy_dracula %>% 
+  inner_join(bing) %>% 
+  count(word, sentiment, sort = TRUE)
+```
+
+## Хмара слів за словником "BING"
+```{r}
+tidy_dracula %>% 
+  inner_join(bing) %>% 
+  count(word, sentiment, sort = TRUE) %>% 
+  acast(word ~ sentiment, value.var = "n", fill = 0) %>% 
+  comparison.cloud(color = c("red", "seagreen"),
+                   max.words = 50,
+                   title.bg.colors = "white")
+```
+
+## Хмара слів за словником "loughran"
+```{r}
+tidy_dracula %>% 
+  inner_join(loughran) %>% 
+  count(word, sentiment, sort = TRUE) %>% 
+  acast(word ~ sentiment, value.var = "n", fill = 0) %>% 
+  comparison.cloud(color = c("blue", "seagreen3", "red", "orange", "grey"),
+                   max.words = 100,
+                   title.bg.colors = "white")
+```
+
+## Візуалізація за словником "BING"
+```{r}
+sentiment_dracula_bing <- tidy_dracula %>% 
+  inner_join(bing) %>% 
+  count(word, sentiment, sort = TRUE) %>% 
+  ungroup()
+
+sentiment_dracula_bing
+```
+
+```{r}
+sentiment_dracula_bing %>% 
+  group_by(sentiment) %>% 
+  top_n(10) %>% 
+  ungroup() %>% 
+  mutate(word = reorder(word, n)) %>% 
+  ggplot(aes(word, n, fill = sentiment)) +
+  geom_col(show.legend = FALSE) +
+  coord_flip() + 
+  labs(
+    y = "Частота на семантикою",
+    x = NULL
+  )
+```
+
+```{r}
+sentiment_dracula_bing %>% 
+  group_by(sentiment) %>% 
+  top_n(10) %>% 
+  ungroup() %>% 
+  mutate(word = reorder(word, n)) %>% 
+  ggplot(aes(word, n, fill = sentiment)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ sentiment, scales = "free_y") + 
+  coord_flip() + 
+  labs(
+    y = "Частота на семантикою",
+    x = NULL
+  )
+```
+
+## Візуалізація за словником "NRC"
+```{r}
+sentiment_dracula_nrc <- tidy_dracula %>% 
+  inner_join(nrc) %>% 
+  count(word, sentiment, sort = TRUE) %>% 
+  ungroup()
+
+sentiment_dracula_nrc
+```
+
+```{r}
+sentiment_dracula_nrc %>% 
+  group_by(sentiment) %>% 
+  top_n(10) %>% 
+  ungroup() %>% 
+  mutate(word = reorder(word, n)) %>% 
+  ggplot(aes(word, n, fill = sentiment)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ sentiment, scales = "free_y") + 
+  coord_flip() + 
+  labs(
+    y = "Частота на семантикою",
+    x = NULL
+  )
+```

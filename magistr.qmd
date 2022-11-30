@@ -1,0 +1,62 @@
+---
+title: "Звіт магістрів"
+format: html
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+#| include: false
+library(tidyverse)
+library(readxl)
+
+magistr <- read_excel('data/ЕкспортЗаяв21.10.2022time00.59.xlsx')
+```
+
+```{r}
+#| include: false
+magistr_rename <- magistr %>% 
+  rename_with(~ gsub(" ", "_", .x)) %>% 
+  mutate(across(where(is.character), str_trim))
+```
+
+```{r}
+for (i in 1:length(magistr_rename %>% names())){
+  print(magistr_rename %>% 
+  distinct(magistr_rename %>% select(i)))
+}
+```
+
+```{r}
+magistr_rename %>% 
+  separate(Назва_КП, into = c("Left", "Right"), sep = "\\(") %>% 
+  select(Left) %>% 
+  mutate(Left = str_trim(Left)) %>% 
+  distinct() %>% 
+  arrange(Left) %>% 
+  mutate(Left = str_replace(Left, "Банківськй бізнес", "Банківський бізнес"),
+         Left = str_replace(Left, "Цифрове врядуванна", "Цифрове врядування"),
+         Left = str_replace(Left, " - ", "-"),
+         Left = str_replace(Left, " -", "-")) %>%
+  distinct() %>% 
+  view()
+```
+
+
+
+```{r}
+#| echo: false
+#| message: false
+#| out-width: 100%
+magistr %>% 
+  mutate(`Конкурсний бал` = as.numeric(`Конкурсний бал`)) %>% 
+  group_by(`Структурний підрозділ`, `Назва КП`, `Форма навчання`) %>% 
+  summarise(
+    `Кількість заявок` = n(),
+    `Середній бал` = mean(`Конкурсний бал`, na.rm = TRUE),
+    `Стандартне відхилення` = sd(`Конкурсний бал`, na.rm = TRUE)
+    ) %>% 
+  DT::datatable(options = list(autoWidth = TRUE), filter = list(
+  position = 'top', clear = FALSE))
+```
+
